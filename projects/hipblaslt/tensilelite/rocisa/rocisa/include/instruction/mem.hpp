@@ -449,6 +449,57 @@ namespace rocisa
         }
     };
 
+    struct GlobalStoreInstruction : public GlobalWriteInstruction
+    {
+        std::shared_ptr<Container>   base;
+        InstructionInput             soffset;
+        std::optional<FLATModifiers> flat;
+
+        GlobalStoreInstruction(InstType                          instType,
+                               const std::shared_ptr<Container>& srcData,
+                               const std::shared_ptr<Container>& base,
+                               const InstructionInput&           soffset,
+                               std::optional<FLATModifiers>      flat    = std::nullopt,
+                               const std::string&                comment = "")
+            : GlobalWriteInstruction(instType, srcData, comment)
+            , base(base)
+            , soffset(soffset)
+            , flat(flat)
+        {
+            instStr = "global_store_";
+        }
+
+        GlobalStoreInstruction(const GlobalStoreInstruction& other)
+            : GlobalWriteInstruction(other)
+            , base(other.base ? other.base->clone() : nullptr)
+            , soffset(copyInstructionInput(other.soffset))
+            , flat(other.flat)
+        {
+        }
+
+        std::vector<InstructionInput> getParams() const override
+        {
+            return {srcData, base, soffset};
+        }
+
+        std::string getArgStr() const
+        {
+            return InstructionInputToString(soffset) + ", " + srcData->toString() + ", "
+                   + base->toString();
+        }
+
+        std::string toString() const override
+        {
+            auto        newInstStr = preStr();
+            std::string kStr       = newInstStr + " " + getArgStr();
+            if(flat)
+            {
+                kStr += flat->toString();
+            }
+            return formatWithComment(kStr);
+        }
+    };
+
     struct FLATStoreInstruction : public GlobalWriteInstruction
     {
         std::shared_ptr<Container>   vaddr;
@@ -770,7 +821,7 @@ namespace rocisa
                           std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                           const std::string&                        comment = "")
             : MUBUFReadInstruction(
-                InstType::INST_D16_HI_U8, dst, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_HI_U8, dst, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -794,7 +845,7 @@ namespace rocisa
                         std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                         const std::string&                        comment = "")
             : MUBUFReadInstruction(
-                InstType::INST_D16_U8, dst, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_U8, dst, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -818,7 +869,7 @@ namespace rocisa
                            std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                            const std::string&                        comment = "")
             : MUBUFReadInstruction(
-                InstType::INST_D16_HI_B16, dst, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_HI_B16, dst, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -842,7 +893,7 @@ namespace rocisa
                          std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                          const std::string&                        comment = "")
             : MUBUFReadInstruction(
-                InstType::INST_D16_B16, dst, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_B16, dst, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -1105,7 +1156,7 @@ namespace rocisa
                            std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                            const std::string&                        comment = "")
             : MUBUFStoreInstruction(
-                InstType::INST_D16_HI_U8, src, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_HI_U8, src, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -1129,7 +1180,7 @@ namespace rocisa
                          std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                          const std::string&                        comment = "")
             : MUBUFStoreInstruction(
-                InstType::INST_D16_U8, src, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_U8, src, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -1153,7 +1204,7 @@ namespace rocisa
                             std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                             const std::string&                        comment = "")
             : MUBUFStoreInstruction(
-                InstType::INST_D16_HI_B16, src, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_HI_B16, src, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -1177,7 +1228,7 @@ namespace rocisa
                           std::optional<MUBUFModifiers>             mubuf   = std::nullopt,
                           const std::string&                        comment = "")
             : MUBUFStoreInstruction(
-                InstType::INST_D16_B16, src, vaddr, saddr, soffset, mubuf, comment)
+                  InstType::INST_D16_B16, src, vaddr, saddr, soffset, mubuf, comment)
         {
         }
 
@@ -2300,6 +2351,28 @@ namespace rocisa
         std::shared_ptr<Item> clone() const override
         {
             return std::make_shared<SStoreB32>(*this);
+        }
+    };
+
+    struct GStoreB32 : public GlobalStoreInstruction
+    {
+        GStoreB32(const std::shared_ptr<Container>& src,
+                  const std::shared_ptr<Container>& base,
+                  const InstructionInput&           soffset,
+                  std::optional<FLATModifiers>      flat    = std::nullopt,
+                  const std::string&                comment = "")
+            : GlobalStoreInstruction(InstType::INST_B32, src, base, soffset, flat, comment)
+        {
+        }
+
+        GStoreB32(const GStoreB32& other)
+            : GlobalStoreInstruction(other)
+        {
+        }
+
+        std::shared_ptr<Item> clone() const override
+        {
+            return std::make_shared<GStoreB32>(*this);
         }
     };
 

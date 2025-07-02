@@ -951,8 +951,8 @@ class Solution(collections.abc.Mapping):
         reject(state, printRejectionReason, "Type {} for DataType not yet supported with StreamK".format(state["ProblemType"]["DataType"].toChar()))
       if not state["EnableMatrixInstruction"]:
         reject(state, printRejectionReason, "Stream-K requires MatrixInstruction")
-      if isaInfoMap[isa].asmCaps["HasWMMA"]:
-        reject(state, printRejectionReason, "Stream-K untested with WMMA")
+      # if isaInfoMap[isa].asmCaps["HasWMMA"]:
+      #   reject(state, printRejectionReason, "Stream-K untested with WMMA")
       # if state["PersistentKernel"]:
       #   reject(state, printRejectionReason, "Cannot enable both Stream-K and PersistentKernel")
       if not state["ProblemType"]["StridedBatched"]:
