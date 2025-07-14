@@ -7,9 +7,11 @@ project(device-library VERSION 0.0.1 LANGUAGES CXX ASM)
 set(HIPBLASLT_DEVICE_LIBRARY_PATH "${hipblaslt_BINARY_DIR}/Tensile/library" CACHE STRING "Path to output the device gemm libraries.")
 file(MAKE_DIRECTORY "${HIPBLASLT_DEVICE_LIBRARY_PATH}")
 
-list(JOIN GPU_TARGETS "$<SEMICOLON>" TENSILE_GPU_TARGETS_SEMI_ESCAPED)
+# Underscores are used to delimit architectures when tensile libraries are built via CMake
+# to avoid complications related to how semicolons are interpreted as list separators
+list(JOIN GPU_TARGETS "_" TENSILE_GPU_TARGETS_UNDERSCORE_DELIMITED)
 
-set(TENSILE_BUILD_OPTS ${TENSILE_BUILD_OPTS} "--architecture=${TENSILE_GPU_TARGETS_SEMI_ESCAPED}")
+set(TENSILE_BUILD_OPTS ${TENSILE_BUILD_OPTS} "--architecture=${TENSILE_GPU_TARGETS_UNDERSCORE_DELIMITED}")
 set(TENSILE_BUILD_OPTS ${TENSILE_BUILD_OPTS} "--cxx-compiler=${CMAKE_CXX_COMPILER}")
 if(HIPBLASLT_ENABLE_ASAN)
     set(TENSILE_BUILD_OPTS ${TENSILE_BUILD_OPTS} "--address-sanitizer")
