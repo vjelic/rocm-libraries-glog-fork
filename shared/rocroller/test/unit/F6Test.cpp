@@ -681,38 +681,4 @@ namespace rocRollerTest
         checkSpecialValues<rocRoller::FP6>(f32_inf.val, f32_nan.val, f32_zero.val);
         checkSpecialValues<rocRoller::BF6>(f32_inf.val, f32_nan.val, f32_zero.val);
     }
-
-    TEST_F(CPUF6Test, mxDataGenerator)
-    {
-        using namespace DGen;
-
-        auto test = []<typename T>()
-        {
-            auto constexpr typeName = std::is_same_v<T, FP6> ? "FP6" : "BF6";
-
-            TensorDescriptor desc(fromString<DataType>(typeName), {2048ul, 2048ul}, "T");
-            auto constexpr minVal = std::is_same_v<T, FP6> ? -7.5 : -28.0;
-            auto constexpr maxVal = -minVal;
-            auto constexpr seed = 31415u;
-            auto dgen = getDataGenerator<T>(desc, minVal, maxVal, seed);
-
-            auto const refFloat = dgen.getReferenceFloat();
-            auto dataByte = dgen.getDataBytes();
-            auto const scales = dgen.getScaleBytes();
-            auto const unpacked = unpackF6x16(reinterpret_cast<std::vector<uint32_t>&>(dataByte));
-
-            EXPECT_EQ(refFloat.size(), unpacked.size());
-            EXPECT_NE(refFloat.size(), dataByte.size());
-
-            for(auto i: std::ranges::iota_view{0u, refFloat.size()})
-            {
-                T f6;
-                f6.data = unpacked[i];
-                EXPECT_FLOAT_EQ(float(f6) * std::pow(2.0f, scales[i] - 127), refFloat[i]);
-            }
-        };
-
-        test.template operator()<FP6>();
-        test.template operator()<BF6>();
-    }
 }

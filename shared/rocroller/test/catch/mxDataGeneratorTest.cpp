@@ -78,6 +78,47 @@ namespace mxDataGeneratorTest
                 CHECK(toFloatPacked<DGenDT>(&scale[0], &byteData2[0], scale_i, i) == ref[i]);
             }
         }
+
+	template <typename rrDT>
+	static consteval float getMin()
+	{
+            if constexpr(std::is_same_v<rrDT, FP4>)
+		return -6.0f;
+            if constexpr(std::is_same_v<rrDT, FP6>)
+		return -7.5f;
+            if constexpr(std::is_same_v<rrDT, BF6>)
+		return -28.0f;
+            if constexpr(std::is_same_v<rrDT, FP8>)
+		return -448.0f;
+            if constexpr(std::is_same_v<rrDT, BF8>)
+		return -57344.0f;
+	}
+
+	template <typename rrDT>
+	void noBlockScalingTest(unsigned dim1, unsigned dim2)
+        {
+            auto             dataType = TypeInfo<rrDT>::Var.dataType;
+            TensorDescriptor desc(dataType, {dim1, dim2}, "T");
+
+            uint32_t seed = 9861u;
+            float constexpr min = getMin<rrDT>();
+	    float constexpr max = -min;
+
+            const auto dgen = getDataGenerator<rrDT>(desc, min, max, seed);
+
+            auto const refFloat   = dgen.getReferenceFloat();
+
+            auto const rrVector = getRandomVector<rrDT>(dgen, false);
+	    auto const unpackedFloat = unpackToFloat(rrVector);
+
+	    REQUIRE(refFloat.size() == unpackedFloat.size());
+
+	    for(int i = 0; i < refFloat.size(); i++)
+	    {
+		rrDT var(refFloat[i]);
+		CHECK(float(var) == unpackedFloat[i]);
+	    }
+        }
     };
 
     TEMPLATE_TEST_CASE(
@@ -87,10 +128,13 @@ namespace mxDataGeneratorTest
 
         SUPPORTED_ARCH_SECTION(arch)
         {
-            const int dim1 = 32;
-            const int dim2 = 32;
+            const int dim1 = 128;
+            const int dim2 = 128;
 
             t.exeDataGeneratorTest<TestType>(dim1, dim2);
+
+            if constexpr(not CIsAnyOf<TestType, Half, BFloat16, float>)
+		t.noBlockScalingTest<TestType>(dim1, dim2);
         }
     }
 }
