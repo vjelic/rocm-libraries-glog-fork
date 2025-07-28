@@ -24,7 +24,6 @@
  *
  *******************************************************************************/
 
-
 #include <rocRoller/AssemblyKernel.hpp>
 #include <rocRoller/CodeGen/ArgumentLoader.hpp>
 #include <rocRoller/CodeGen/CopyGenerator.hpp>
@@ -34,8 +33,6 @@
 #include <rocRoller/DataTypes/DataTypes_BF6.hpp>
 #include <rocRoller/DataTypes/DataTypes_FP6.hpp>
 #include <rocRoller/Operations/Command.hpp>
-
-#include <common/mxDataGen.hpp>
 
 #include "GPUContextFixture.hpp"
 #include "GenericContextFixture.hpp"

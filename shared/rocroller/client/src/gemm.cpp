@@ -958,53 +958,6 @@ static bool ParseWorkgroupMapping(const std::string&                            
  */
 int main(int argc, const char* argv[])
 {
-
-    //{
-    //    std::vector<FP4x8> hostA;
-    //    std::vector<FP4x8> hostB;
-    //    std::vector<Half>           hostC;
-    //    std::vector<Half>           hostD(4096*4096);
-    //    std::vector<uint8_t>     hostScaleA, hostScaleB;
-
-    //    auto seed = 31415u;
-
-    //    TensorDescriptor descA(fromString<DataType>("FP4"),
-    //                           {static_cast<unsigned long>(4096),
-    //                            static_cast<unsigned long>(32768)}, "T");
-
-
-    //    auto dgenA = getDataGenerator<FP4>(descA, -1.0, 1.0, seed + 1, 1);
-
-    //    auto refF = dgenA.getReferenceFloat();
-    //    Log::info("ref size = {}", refF.size());
-    //    for(auto d: refF)
-    //        if(d > 1.0 or d < -1.0)
-    //            Log::info("{}", d);
-
-
-
-    //    //auto scaleBlockSize = 1;
-    //    //DGenInput(seed,
-    //    //          hostA,
-    //    //          descA,
-    //    //          hostB,
-    //    //          descB,
-    //    //          hostC,
-    //    //          descC,
-    //    //          hostScaleA,
-    //    //          hostScaleB,
-    //    //          false,
-    //    //          false,
-    //    //          -1.f,
-    //    //          1.f,
-    //    //          static_cast<uint>(scaleBlockSize));
-    //    return 0;
-    //}
-
-
-
-
-
     CLI::App app{"GEMM Driver: D (MxN) = alpha * A (MxK) * B (KxN) + beta * C (MxN)"};
     app.footer(Settings::getInstance()->help());
 
