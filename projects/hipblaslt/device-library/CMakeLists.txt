@@ -42,6 +42,12 @@ if(NOT HIPBLASLT_LIBLOGIC_PATH)
     set(HIPBLASLT_LIBLOGIC_PATH "${hipblaslt_SOURCE_DIR}/library")
 endif()
 
+if(NOT TENSILELITE_BINARY_DIR)
+    set(output_dir "${hipblaslt_BINARY_DIR}/Tensile")
+else()
+    set(output_dir "${TENSILELITE_BINARY_DIR}")
+endif()
+
 set(output_stamp "${CMAKE_CURRENT_BINARY_DIR}/Tensile.stamp")
 set(TENSILE_CREATE_LIBRARY_COMMAND
     ${HIPBLASLT_PYTHON_COMMAND} -m Tensile.TensileCreateLibrary
