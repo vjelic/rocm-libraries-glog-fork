@@ -508,7 +508,7 @@ if(HIPBLASLT_ENABLE_SAMPLES)
     rocm_package_setup_client_component(samples)
 endif()
 
-if(ROCM_LIBRARIES_SUPERBUILD OR NOT IS_SUBPROJECT)
+if(ROCM_LIBRARIES_SUPERBUILD OR NOT HIPBLASLT_IS_SUBPROJECT)
     # rocm_create_package makes decisions on what type of package to produce
     # based on BUILD_SHARED_LIBS. If we don't set this here we will only get
     # a dev package.
