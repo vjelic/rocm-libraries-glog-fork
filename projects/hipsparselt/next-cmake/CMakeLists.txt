@@ -65,7 +65,7 @@ option(HIPSPARSELT_ENABLE_MARKER "Enable rocTracer marker support." OFF)
 option(HIPSPARSELT_ENABLE_ASAN "Build with address sanitizer enabled." OFF)
 option(HIPSPARSELT_ENABLE_VERBOSE "Output additional build information." OFF)
 
-set(HIPSPARSELT_HIPBLASLT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../hipblaslt/next-cmake"
+set(HIPSPARSELT_HIPBLASLT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../hipblaslt"
     CACHE PATH "Path to hipblaslt directory."
 )
 set(HIPSPARSELT_COVERAGE_GTEST_FILTER "*pre_checkin*"
