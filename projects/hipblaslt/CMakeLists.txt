@@ -3,15 +3,16 @@
 
 cmake_minimum_required(VERSION 3.24.4)
 
+
+option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate compile commands json file." ON)
+
+project(hipblaslt VERSION 1.1.0 LANGUAGES CXX)
+
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${PROJECT_SOURCE_DIR}")
     set(HIPBLASLT_IS_SUBPROJECT FALSE)
 else()
     set(HIPBLASLT_IS_SUBPROJECT TRUE)
 endif()
-
-option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate compile commands json file." ON)
-
-project(hipblaslt VERSION 1.1.0 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
