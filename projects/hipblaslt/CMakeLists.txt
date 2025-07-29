@@ -3,7 +3,10 @@
 
 cmake_minimum_required(VERSION 3.24.4)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> users/ellosel/hipblaslt-next-cmake-refactor
 option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate compile commands json file." ON)
 
 project(hipblaslt VERSION 1.1.0 LANGUAGES CXX)
@@ -138,7 +141,7 @@ else()
 endif()
 if(HIPBLASLT_ENABLE_CLIENT)
     find_package(BLAS REQUIRED)
-    find_package(cblas REQUIRED)
+    #find_package(cblas REQUIRED) # is this actually required
     find_package(LAPACK REQUIRED)
 endif()
 if(HIPBLASLT_ENABLE_OPENMP)
