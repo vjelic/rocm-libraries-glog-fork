@@ -78,3 +78,6 @@ format = {
     "keyword_case": "unchanged",
     "enable_sort": False
 } 
+
+first_comment_is_literal = True
+enable_comment_markup = False 

@@ -15,7 +15,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Set cpack license file here to avoid rocm-cmake warning
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
 
 include(FetchROCmCMake)
 include(hipSPARSELtSupportedArchitectures)
@@ -65,7 +65,7 @@ option(HIPSPARSELT_ENABLE_MARKER "Enable rocTracer marker support." OFF)
 option(HIPSPARSELT_ENABLE_ASAN "Build with address sanitizer enabled." OFF)
 option(HIPSPARSELT_ENABLE_VERBOSE "Output additional build information." OFF)
 
-set(HIPSPARSELT_HIPBLASLT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../hipblaslt"
+set(HIPSPARSELT_HIPBLASLT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../hipblaslt"
     CACHE PATH "Path to hipblaslt directory."
 )
 set(HIPSPARSELT_COVERAGE_GTEST_FILTER "*pre_checkin*"
@@ -137,9 +137,9 @@ if(HIPSPARSELT_ENABLE_HIP)
     set(HIPBLASLT_ENABLE_CLIENT OFF CACHE BOOL "" FORCE)
     set(HIPBLASLT_ENABLE_DEVICE ON CACHE BOOL "" FORCE)
     set(TENSILELITE_ENABLE_HOST ON CACHE BOOL "" FORCE)
-    set(HIPBLASLT_DEVICE_LIBRARY_PATH "${CMAKE_BINARY_DIR}/Tensile" CACHE PATH "" FORCE)
+    set(HIPBLASLT_TENSILE_LIBPATH "${CMAKE_BINARY_DIR}/Tensile" CACHE PATH "" FORCE)
     set(HIPBLASLT_LIBLOGIC_PATH
-        "${CMAKE_CURRENT_SOURCE_DIR}/../library/src/hcc_detail/rocsparselt/src/spmm/Tensile/Logic/asm_full"
+        "${CMAKE_CURRENT_SOURCE_DIR}/library/src/hcc_detail/rocsparselt/src/spmm/Tensile/Logic/asm_full"
         CACHE STRING "" FORCE
     )
     set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.md"
