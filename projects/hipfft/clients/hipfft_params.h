@@ -369,8 +369,11 @@ public:
             ll_onembed[1] = ostride[0] / ostride[1];
             [[fallthrough]];
         case 1:
-            ll_inembed[0] = istride[dim() - 1];
-            ll_onembed[0] = ostride[dim() - 1];
+            // embed[0] is effectively ignored, as "dist" is instead
+            // used to know batch stride.  But docs say embed[n] should
+            // never be less than length[n]
+            ll_inembed[0] = length[0];
+            ll_onembed[0] = length[0];
             break;
         default:
             throw std::runtime_error("Invalid dimension");

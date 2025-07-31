@@ -60,6 +60,7 @@ set( hipfft-test_source
   accuracy_test_2D.cpp
   accuracy_test_3D.cpp
   accuracy_test_callback.cpp
+  hipfftw_test.cpp
   multi_device_test.cpp
   ../../shared/array_validator.cpp
   )
@@ -201,6 +202,11 @@ target_link_libraries( hipfft-test
   PRIVATE
   Threads::Threads
   )
+
+# hipfft-test will opens the hipfftw library but does not link to it
+if( TARGET hipfftw )
+  add_dependencies( hipfft-test hipfftw )
+endif()
 
 if (WIN32)
 

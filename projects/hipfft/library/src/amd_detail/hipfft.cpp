@@ -22,6 +22,7 @@
 #include "../../../shared/hipfft_brick.h"
 #include "hipfft/hipfftXt.h"
 #include "rocfft/rocfft.h"
+#include "stride.h"
 #include <algorithm>
 #include <memory>
 #include <sstream>
@@ -1059,47 +1060,14 @@ hipfftResult hipfftMakePlanMany_internal(hipfftHandle plan,
 
     bool re_calc_strides_in_desc = (inembed == nullptr) || (onembed == nullptr);
 
-    size_t i_strides[3] = {1, 1, 1};
-    size_t o_strides[3] = {1, 1, 1};
-    for(int i = 1; i < rank; i++)
-    {
-        i_strides[i] = lengths[i - 1] * i_strides[i - 1];
-        o_strides[i] = lengths[i - 1] * o_strides[i - 1];
-    }
-
-    if(inembed != nullptr)
-    {
-        i_strides[0] = istride;
-
-        size_t inembed_lengths[3];
-        for(int i = 0; i < rank; i++)
-            inembed_lengths[i] = inembed[rank - 1 - i];
-
-        for(int i = 1; i < rank; i++)
-            i_strides[i] = inembed_lengths[i - 1] * i_strides[i - 1];
-    }
-
-    if(onembed != nullptr)
-    {
-        o_strides[0] = ostride;
-
-        size_t onembed_lengths[3];
-        for(int i = 0; i < rank; i++)
-            onembed_lengths[i] = onembed[rank - 1 - i];
-
-        for(int i = 1; i < rank; i++)
-            o_strides[i] = onembed_lengths[i - 1] * o_strides[i - 1];
-    }
-
     desc.inArrayType  = in_array_type;
     desc.outArrayType = out_array_type;
 
-    for(int i = 0; i < rank; i++)
-        desc.inStrides[i] = i_strides[i];
-    desc.inDist = idist;
-
-    for(int i = 0; i < rank; i++)
-        desc.outStrides[i] = o_strides[i];
+    auto i_strides = embed_to_rocfft_stride(rank, lengths, istride, inembed);
+    std::copy(i_strides.begin(), i_strides.end(), desc.inStrides);
+    desc.inDist    = idist;
+    auto o_strides = embed_to_rocfft_stride(rank, lengths, ostride, onembed);
+    std::copy(o_strides.begin(), o_strides.end(), desc.outStrides);
     desc.outDist = odist;
 
     hipfftResult ret = hipfftMakePlan_internal(
