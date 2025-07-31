@@ -185,9 +185,7 @@ set( rocfft-test_include_dirs
   ${ROCM_CLANG_ROOT}/include
   )
 
-set( rocfft-test_link_libs
-  ${FFTW_LIBRARIES} OpenMP::OpenMP_CXX
-  )
+set( rocfft-test_link_libs ${FFTW_LIBRARIES} )
 
 include( ../cmake/build-gtest.cmake )
 
@@ -214,6 +212,19 @@ endif()
 if( NOT ROCFFT_BUILD_SCOPE )
   find_package(SQLite3 REQUIRED)
   set( ROCFFT_SQLITE_LIB SQLite::SQLite3)
+endif()
+
+option( BUILD_CLIENTS_TESTS_OPENMP "Build tests with OpenMP" ON )
+
+if( BUILD_CLIENTS_TESTS_OPENMP )
+  find_package(OpenMP REQUIRED)
+  target_link_libraries( rocfft-test PRIVATE OpenMP::OpenMP_CXX
+                         -L${HIP_CLANG_ROOT}/lib -Wl,-rpath=${HIP_CLANG_ROOT}/lib )
+  foreach(omplib ${OpenMP_CXX_LIBRARIES})
+    if(NOT EXISTS ${omplib})
+      message( FATAL_ERROR "OpenMP configuration mentions ${omplib} which does not exist." )
+    endif()
+  endforeach(omplib)
 endif()
 
 target_link_libraries( rocfft-test
@@ -269,20 +280,6 @@ target_link_libraries( rocfft-test PUBLIC ${ROCFFT_SQLITE_LIB} )
 target_include_directories( rocfft-test PRIVATE ${sqlite_local_SOURCE_DIR} )
 
 set_property( TARGET rocfft-test APPEND PROPERTY LINK_LIBRARIES ${ROCFFT_SQLITE_LIB} )
-
-option( BUILD_CLIENTS_TESTS_OPENMP "Build tests with OpenMP" ON )
-
-if( BUILD_CLIENTS_TESTS_OPENMP )
-  find_package(OpenMP REQUIRED)
-  if( CMAKE_CXX_COMPILER MATCHES ".*/hipcc$" )
-    target_link_libraries( rocfft-test PRIVATE OpenMP::OpenMP_CXX -L${HIP_CLANG_ROOT}/lib -Wl,-rpath=${HIP_CLANG_ROOT}/lib )
-    target_include_directories( rocfft-test PRIVATE ${HIP_CLANG_ROOT}/include )
-  else()
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-      target_link_libraries( rocfft-test PRIVATE OpenMP::OpenMP_CXX )
-    endif()
-  endif()
-endif()
 
 if(FFTW_MULTITHREAD)
   target_compile_options( rocfft-test PRIVATE -DFFTW_MULTITHREAD )
