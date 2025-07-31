@@ -77,3 +77,17 @@ static inline size_t count_iters(const std::tuple<T1, T1, T1>& i)
 {
     return std::get<0>(i) * std::get<1>(i) * std::get<2>(i);
 }
+
+template <typename destT,
+          typename sourceT,
+          std::enable_if_t<std::is_unsigned_v<sourceT>, bool> = true>
+bool is_in_range(const sourceT& val)
+{
+    static_assert(std::numeric_limits<destT>::max() >= 0); // zealous compile-time check
+    // source type is unsigned --> check for possible overflows
+    if constexpr(std::numeric_limits<sourceT>::max() <= std::numeric_limits<destT>::max())
+        return true; // cannot happend
+    // std::numeric_limits<sourceT>::max() > std::numeric_limits<destT>::max()
+    // --> the following will promote the RHS to sourceT
+    return val <= std::numeric_limits<destT>::max();
+}

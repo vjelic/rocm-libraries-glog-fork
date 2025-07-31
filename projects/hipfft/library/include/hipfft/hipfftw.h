@@ -52,10 +52,15 @@ typedef float  fftwf_complex[2];
 #define FFTW_BACKWARD (1)
 
 // Buffer management
-HIPFFT_EXPORT void* fftw_malloc(size_t n);
-HIPFFT_EXPORT void* fftwf_malloc(size_t n);
-HIPFFT_EXPORT void  fftw_free(void* p);
-HIPFFT_EXPORT void  fftwf_free(void* p);
+HIPFFT_EXPORT void*   fftw_malloc(size_t n);
+HIPFFT_EXPORT void*   fftwf_malloc(size_t n);
+HIPFFT_EXPORT double* fftw_alloc_real(size_t n);
+HIPFFT_EXPORT float*  fftwf_alloc_real(size_t n);
+HIPFFT_EXPORT fftw_complex* fftw_alloc_complex(size_t n);
+HIPFFT_EXPORT fftwf_complex* fftwf_alloc_complex(size_t n);
+
+HIPFFT_EXPORT void fftw_free(void* p);
+HIPFFT_EXPORT void fftwf_free(void* p);
 
 // Plan usage
 typedef void*      fftw_plan;
@@ -86,38 +91,38 @@ HIPFFT_EXPORT fftwf_plan fftwf_plan_dft(
     int rank, const int* n, fftwf_complex* in, fftwf_complex* out, int sign, unsigned flags);
 HIPFFT_EXPORT fftw_plan  fftw_plan_dft_r2c_1d(int n, double* in, fftw_complex* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan fftwf_plan_dft_r2c_1d(int            n,
-                                               double*        in,
+                                               float*         in,
                                                fftwf_complex* out,
                                                unsigned       flags);
 HIPFFT_EXPORT fftw_plan
     fftw_plan_dft_r2c_2d(int n0, int n1, double* in, fftw_complex* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan
-    fftwf_plan_dft_r2c_2d(int n0, int n1, double* in, fftwf_complex* out, unsigned flags);
+    fftwf_plan_dft_r2c_2d(int n0, int n1, float* in, fftwf_complex* out, unsigned flags);
 HIPFFT_EXPORT fftw_plan
     fftw_plan_dft_r2c_3d(int n0, int n1, int n2, double* in, fftw_complex* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan
-    fftwf_plan_dft_r2c_3d(int n0, int n1, int n2, double* in, fftwf_complex* out, unsigned flags);
+    fftwf_plan_dft_r2c_3d(int n0, int n1, int n2, float* in, fftwf_complex* out, unsigned flags);
 HIPFFT_EXPORT fftw_plan
     fftw_plan_dft_r2c(int rank, const int* n, double* in, fftw_complex* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan
-    fftwf_plan_dft_r2c(int rank, const int* n, double* in, fftwf_complex* out, unsigned flags);
+    fftwf_plan_dft_r2c(int rank, const int* n, float* in, fftwf_complex* out, unsigned flags);
 HIPFFT_EXPORT fftw_plan  fftw_plan_dft_c2r_1d(int n, fftw_complex* in, double* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan fftwf_plan_dft_c2r_1d(int            n,
                                                fftwf_complex* in,
-                                               double*        out,
+                                               float*         out,
                                                unsigned       flags);
 HIPFFT_EXPORT fftw_plan
     fftw_plan_dft_c2r_2d(int n0, int n1, fftw_complex* in, double* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan
-    fftwf_plan_dft_c2r_2d(int n0, int n1, fftwf_complex* in, double* out, unsigned flags);
+    fftwf_plan_dft_c2r_2d(int n0, int n1, fftwf_complex* in, float* out, unsigned flags);
 HIPFFT_EXPORT fftw_plan
     fftw_plan_dft_c2r_3d(int n0, int n1, int n2, fftw_complex* in, double* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan
-    fftwf_plan_dft_c2r_3d(int n0, int n1, int n2, fftwf_complex* in, double* out, unsigned flags);
+    fftwf_plan_dft_c2r_3d(int n0, int n1, int n2, fftwf_complex* in, float* out, unsigned flags);
 HIPFFT_EXPORT fftw_plan
     fftw_plan_dft_c2r(int rank, const int* n, fftw_complex* in, double* out, unsigned flags);
 HIPFFT_EXPORT fftwf_plan
-    fftwf_plan_dft_c2r(int rank, const int* n, fftwf_complex* in, double* out, unsigned flags);
+    fftwf_plan_dft_c2r(int rank, const int* n, fftwf_complex* in, float* out, unsigned flags);
 
 // Non-functional utility APIs
 HIPFFT_EXPORT void   fftw_print_plan(const fftw_plan);

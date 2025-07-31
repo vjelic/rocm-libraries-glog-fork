@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <array>
 #include <vector>
 
 // Compute the farthest point from the original pointer.
@@ -39,4 +40,15 @@ static size_t compute_ptrdiff(const std::vector<size_t>& length,
         val += (nbatch - 1) * dist;
     }
     return val;
+}
+
+template <size_t rank>
+static size_t compute_ptrdiff(const std::array<size_t, rank>& length,
+                              const std::array<size_t, rank>& stride,
+                              const size_t                    nbatch,
+                              const size_t                    dist)
+{
+    std::vector<size_t> l_vector(length.begin(), length.end());
+    std::vector<size_t> s_vector(stride.begin(), stride.end());
+    return compute_ptrdiff(l_vector, s_vector, nbatch, dist);
 }

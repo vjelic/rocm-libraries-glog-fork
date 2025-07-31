@@ -173,13 +173,10 @@ void precompile_test_kernels(const std::string& precompile_file)
                 continue;
 
             // only care about accuracy tests
-            if(name.find("vs_fftw/") != std::string::npos)
+            const auto pos = name.find("vs_fftw/");
+            if(pos != std::string::npos)
             {
-                // [possible TODO] move above check to nesting loop's scope as a
-                // check on the test suite's name (i.e., if it includes "accuracy_test").
-                // That would allow other (hypothetical) accuracy test instances than
-                // "vs_fftw/" to be considered as well...
-                name.erase(0, 8);
+                name.erase(0, pos + 8);
 
                 // change batch to 1, so we don't waste time creating
                 // multiple plans that differ only by batch
