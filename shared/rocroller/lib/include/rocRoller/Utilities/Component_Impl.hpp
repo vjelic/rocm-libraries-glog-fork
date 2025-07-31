@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "rocRoller/Scheduling/PriorityScheduler.hpp"
+#include "rocRoller/Scheduling/RoundRobinScheduler.hpp"
 #include <rocRoller/Utilities/Component.hpp>
 #include <rocRoller/Utilities/Error.hpp>
 #include <rocRoller/Utilities/Logging.hpp>
@@ -37,7 +39,8 @@ namespace rocRoller
     {
 
         template <ComponentBase Base>
-        requires(!CSingleUse<Base>) std::shared_ptr<Base> Get(typename Base::Argument const& arg)
+            requires(!CSingleUse<Base>)
+        std::shared_ptr<Base> Get(typename Base::Argument const& arg)
         {
             using Factory = ComponentFactory<Base>;
             auto& factory = Factory::Instance();
@@ -45,7 +48,8 @@ namespace rocRoller
         }
 
         template <ComponentBase Base>
-        requires(!CSingleUse<Base>) std::shared_ptr<Base> Get(typename Base::Argument&& arg)
+            requires(!CSingleUse<Base>)
+        std::shared_ptr<Base> Get(typename Base::Argument&& arg)
         {
             using Factory       = ComponentFactory<Base>;
             auto const& factory = Factory::Instance();
@@ -211,6 +215,13 @@ namespace rocRoller
 
             return true;
         }
+
+        // template <Component Comp>
+        // void ComponentFactory<Scheduling::Scheduler>::registerImplementations()
+        // {
+        //     registerComponent<Scheduling::PriorityScheduler>();
+        //     registerComponent<Scheduling::RoundRobinScheduler>();
+        // }
 
         template <ComponentBase Base>
         template <typename T>
