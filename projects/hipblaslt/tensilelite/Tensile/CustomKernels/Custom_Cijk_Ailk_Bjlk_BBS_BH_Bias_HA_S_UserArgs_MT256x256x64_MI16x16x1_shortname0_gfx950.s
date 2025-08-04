@@ -67,8 +67,8 @@ custom.config:
   MIBlock: [16, 16, 32, 1, 1, 1]
   MatrixInstruction: [16, 16, 32, 1]
   WavefrontSize: 64
-  WorkGroupMapping: 16
-  WorkGroupMappingXCC: 2
+  WorkGroupMapping: 8
+  WorkGroupMappingXCC: 1
   WorkGroupMappingXCCGroup: -1
   StaggerU: 0
   EnableMatrixInstruction: True
@@ -91,7 +91,7 @@ custom.config:
   StreamK: 3
   StreamKAtomic: 0
   StreamKXCCMapping: 0
-  TransposeLDS: 1
+  TransposeLDS: 0
 amdhsa.version:
   - 1
   - 1
