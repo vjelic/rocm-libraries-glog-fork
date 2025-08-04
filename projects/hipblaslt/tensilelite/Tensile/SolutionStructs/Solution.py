@@ -375,17 +375,6 @@ class Solution(collections.abc.Mapping):
     state["NonDTLTailLoopA"] = False
     state["NonDTLTailLoopB"] = False
 
-    bpeA = state["ProblemType"]["DataTypeA"].numBytes()
-    bpeB = state["ProblemType"]["DataTypeB"].numBytes()
-    asem = state["AssertSummationElementMultiple"]
-    # For DTL, we use nonDTL loads in tail loop only if
-    # a partial 32b read is required to read the last few elements of a row/col of A/B
-    # i.e. ASEM * BPE % 4 != 0. In this case dword/dwordx4 DTL load will
-    # zero out the entire partial 32b read and cause accuracy issues.
-    if (asem * bpeA) % 4 != 0:
-      state["NonDTLTailLoopA"] = not state["ProblemType"]["TLUA"]
-    if (asem * bpeB) % 4 != 0:
-      state["NonDTLTailLoopB"] = not state["ProblemType"]["TLUB"]
 
     if (state["ISA"] != (9, 4, 2)) or \
        (state["ProblemType"]["Sparse"]) or \
@@ -763,8 +752,9 @@ class Solution(collections.abc.Mapping):
     numBytesPerLoad = state["GlobalReadVectorWidth%s"%tc] * numBytesAB
 
     # so far, numBytesAB<4 case, TLU=False only (continue with False)
-    if numBytesAB < 4 and state["ProblemType"]["TLU%c"%tc]:
-      return False
+    #if numBytesAB < 4 and state["ProblemType"]["TLU%c"%tc]:
+    #  reject(state, printRejectionReason, "asdfasdfasdf")
+    #  return False
 
     # x2 DTL is not supported
     if numBytesPerLoad == 8:
@@ -2343,13 +2333,25 @@ class Solution(collections.abc.Mapping):
     # No longer support loadX2/loadx4 .
     if state["DirectToLds"]:
 
+      asem = state["AssertSummationElementMultiple"]
+      # For DTL, we use nonDTL loads in tail loop only if
+      # a partial 32b read is required to read the last few elements of a row/col of A/B
+      # i.e. ASEM * BPE % 4 != 0. In this case dword/dwordx4 DTL load will
+      # zero out the entire partial 32b read and cause accuracy issues.
+      bpeA = state["ProblemType"]["DataTypeA"].numBytes()
+      bpeB = state["ProblemType"]["DataTypeB"].numBytes()
+
       if (not state["DirectToVgprA"]) and Solution.isDirectToLdsDoable(state, 'A', isaInfoMap, printRejectionReason):
         state["DirectToLdsA"] = True
         state["LocalWriteUseSgprA"] = True
+        if (asem * bpeA) % 4 != 0:
+          state["NonDTLTailLoopA"] = True
 
       if (not state["DirectToVgprB"]) and Solution.isDirectToLdsDoable(state, 'B', isaInfoMap, printRejectionReason):
         state["DirectToLdsB"] = True
         state["LocalWriteUseSgprB"] = True
+        if (asem * bpeB) % 4 != 0:
+          state["NonDTLTailLoopB"] = True #not state["ProblemType"]["TLUB"]
 
       # Update parent variable so kernel display is accurate
       state["DirectToLds"] = state["DirectToLdsA"] or state["DirectToLdsB"]
@@ -3019,9 +3021,9 @@ class Solution(collections.abc.Mapping):
     if state["TransposeLDS"] == 1:
       if not state["EnableMatrixInstruction"]:
         reject(state, printRejectionReason, "TransposeLds Supports only in MatrixInstruction=1")
-      if state["ProblemType"]["TLUA"] and state["ProblemType"]["TLUB"]:
-          # TODO: Now in rocBLAS, lot of logic yamls are Type=NT and TLDS=1? Why aren't they rejected and how to get rid of them?
-          reject(state, printRejectionReason, "TransposeLds requires TLUA=0 or TLUB=0")
+      #if state["ProblemType"]["TLUA"] and state["ProblemType"]["TLUB"]:
+      #    # TODO: Now in rocBLAS, lot of logic yamls are Type=NT and TLDS=1? Why aren't they rejected and how to get rid of them?
+      #    reject(state, printRejectionReason, "TransposeLds requires TLUA=0 or TLUB=0")
     if state["EnableMatrixInstruction"]:
       # enable widerLocalRead
       if state["LocalReadVectorWidth"] > state["MIInputPerThread"]:
