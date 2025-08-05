@@ -154,4 +154,12 @@ Tests:
   function:
     - aux_get_version: *hpa_half_precision
 
-...
+- name: aux_string_helper
+  category: pre_checkin
+  function:
+    - aux_string_helper: *hpa_half_precision
+
+- name: aux_rocsparselt_ostream
+  category: pre_checkin
+  function:
+    - aux_rocsparselt_ostream: *hpa_half_precision

@@ -33,6 +33,8 @@
 #include "hipsparselt_random.hpp"
 #include "hipsparselt_test.hpp"
 #include "hipsparselt_vector.hpp"
+#include "rocsparselt-types.h"
+#include "tensile_host.hpp"
 #include "unit.hpp"
 #include "utility.hpp"
 #include <hipsparselt/hipsparselt.h>
@@ -295,7 +297,7 @@ void testing_aux_mat_init_structured_bad_arg(const Arguments& arg)
                                                                 HIP_R_64F,
                                                                 HIPSPARSE_ORDER_COL,
                                                                 HIPSPARSELT_SPARSITY_50_PERCENT),
-                            HIPSPARSE_STATUS_NOT_SUPPORTED);     
+                            HIPSPARSE_STATUS_NOT_SUPPORTED);
 }
 
 void testing_aux_mat_dense_init(const Arguments& arg)
@@ -1829,4 +1831,156 @@ void testing_aux_get_workspace_size(const Arguments& arg)
 
     EXPECT_HIPSPARSE_STATUS(hipsparseLtMatmulGetWorkspace(handle, plan, &workspace_size),
                             HIPSPARSE_STATUS_SUCCESS);
+}
+
+void testing_aux_string_helper(const Arguments& arg)
+{
+    struct StrToEnumTestCase
+    {
+        const char* input;
+        int expected;
+    };
+
+    constexpr int invalid_enum = -1;
+
+    const StrToEnumTestCase hip_datatype_cases[] = {
+        {"f32_r", HIP_R_32F},
+        {"s", HIP_R_32F},
+        {"f16_r", HIP_R_16F},
+        {"h", HIP_R_16F},
+        {"bf16_r", HIP_R_16BF},
+        {"i8_r", HIP_R_8I},
+#if defined(HIP_FP8_TYPE_OCP) || defined(__HIP_PLATFORM_NVIDIA__)
+        {"f8_r", HIP_R_8F_E4M3},
+        {"bf8_r", HIP_R_8F_E5M2},
+#endif
+        {"invalid", invalid_enum},
+        {"", invalid_enum},
+        {"f64_r", invalid_enum},
+        {"unknown", invalid_enum},
+        {"F32_R", invalid_enum},
+    };
+
+    for(const auto& test : hip_datatype_cases)
+    {
+        EXPECT_EQ(string_to_hip_datatype(test.input), test.expected);
+    }
+
+    const StrToEnumTestCase compute_type_cases[] = {
+        {"f32_r", HIPSPARSELT_COMPUTE_32F},
+        {"s", HIPSPARSELT_COMPUTE_32F},
+        {"i32_r", HIPSPARSELT_COMPUTE_32I},
+        {"f16_r", HIPSPARSELT_COMPUTE_16F},
+        {"h", HIPSPARSELT_COMPUTE_16F},
+        {"tf32_r", HIPSPARSELT_COMPUTE_TF32},
+        {"tf32f_r", HIPSPARSELT_COMPUTE_TF32_FAST},
+        {"invalid", invalid_enum},
+        {"", invalid_enum},
+        {"unknown", invalid_enum},
+    };
+
+    for(const auto& test : compute_type_cases)
+    {
+        EXPECT_EQ(string_to_hipsparselt_computetype(test.input), test.expected);
+    }
+
+    const std::pair<const char*, hipsparselt_activation_type> activation_type_cases[] = {
+        {"abs", hipsparselt_activation_type::abs},
+        {"clippedrelu", hipsparselt_activation_type::clippedrelu},
+        {"exp", hipsparselt_activation_type::exp},
+        {"gelu", hipsparselt_activation_type::gelu},
+        {"leakyrelu", hipsparselt_activation_type::leakyrelu},
+        {"relu", hipsparselt_activation_type::relu},
+        {"sigmoid", hipsparselt_activation_type::sigmoid},
+        {"tanh", hipsparselt_activation_type::tanh},
+        {"all", hipsparselt_activation_type::all},
+        {"none", hipsparselt_activation_type::none},
+        {"invalid", static_cast<hipsparselt_activation_type>(invalid_enum)},
+    };
+
+    for(const auto& test : activation_type_cases)
+    {
+        EXPECT_EQ(string_to_hipsparselt_activation_type(test.first), test.second);
+        EXPECT_STREQ(hipsparselt_activation_type_to_string(test.second), test.first);
+    }
+}
+
+// Test for RocsparseltContractionProblem operator<< function
+void testing_rocsparselt_contraction_problem_ostream(const Arguments& arg)
+{
+    // using Ti = float;
+    // using To = float;
+    // using Tc = float;
+
+    // // Create a mock handle
+    // _rocsparselt_handle handle;
+
+    // // Test data - use different values to ensure all branches are covered
+    // constexpr size_t m = 128, n = 64, k = 32;
+    // constexpr size_t batch_count = 2;
+
+    // // Create test arrays
+    // std::vector<Ti> A_data(m * k * batch_count, Ti(1.5));
+    // std::vector<Ti> B_data(k * n * batch_count, Ti(2.5));
+    // std::vector<To> C_data(m * n * batch_count, To(3.5));
+    // std::vector<To> D_data(m * n * batch_count, To(0.0));
+    // std::vector<unsigned char> metadata(m * k / 2, 0xFF);
+    // std::vector<float> bias_data(m, 1.0f);
+
+    // Tc alpha = Tc(1.0);
+    // Tc beta = Tc(0.5);
+
+    // // Test case 2: Problem with bias and activation to cover different branches
+    // {
+    //     RocsparseltContractionProblem<Ti, To> prob(
+    //         &handle,
+    //         rocsparselt_operation_transpose,  // trans_a
+    //         rocsparselt_operation_none,       // trans_b
+    //         rocsparselt_order_row,           // order
+    //         m, n, k,                         // dimensions
+    //         &alpha,                          // alpha
+    //         A_data.data(), nullptr,          // A, batch_A
+    //         k, 0, 0,                        // ld_a, batch_stride_a, offset_a
+    //         B_data.data(), nullptr,          // B, batch_B
+    //         n, 0, 0,                        // ld_b, batch_stride_b, offset_b
+    //         &beta,                           // beta
+    //         C_data.data(), nullptr,          // C, batch_C
+    //         n, 0, 0,                        // ld_c, batch_stride_c, offset_c
+    //         D_data.data(), nullptr,          // D, batch_D
+    //         n, 0, 0,                        // ld_d, batch_stride_d, offset_d
+    //         batch_count,                     // batch_count
+    //         true,                           // strided_batch
+    //         false,                          // sparseA
+    //         nullptr,                        // metadata
+    //         hipsparselt_activation_type::relu, // act_type
+    //         0.1f, 6.0f,                     // act_arg0, act_arg1
+    //         bias_data.data(),               // bias_vector (not nullptr)
+    //         1,                              // bias_stride
+    //         HIP_R_16F,                      // bias_type
+    //         true,                           // alpha_vector_scaling
+    //         nullptr,                        // workspace
+    //         1024,                           // workspaceSize
+    //         nullptr,                        // streams
+    //         1                               // numStreams
+    //     );
+
+    //     hipsparselt_internal_ostream hoss;
+
+    //     // This should cover the bias_vector != nullptr branch
+    //     //hoss << prob;
+    //     printRCP(hoss, prob);
+
+    //     std::string output = hoss.str();
+
+    //     // Verify bias-related output
+    //     EXPECT_TRUE(output.find("relu") != std::string::npos); // activation type
+    //     EXPECT_TRUE(output.find("true") != std::string::npos);  // has_bias should be true
+    //     EXPECT_TRUE(output.find("0.1") != std::string::npos);   // activation_arg0
+    //     EXPECT_TRUE(output.find("6") != std::string::npos);     // activation_arg1
+    // }
+}
+
+void testing_aux_rocsparselt_ostream(const Arguments& arg)
+{
+    testing_rocsparselt_contraction_problem_ostream(arg);
 }

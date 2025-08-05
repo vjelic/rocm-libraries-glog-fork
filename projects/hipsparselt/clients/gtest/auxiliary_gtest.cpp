@@ -120,6 +120,10 @@ namespace
                 testing_aux_get_workspace_size_bad_arg(arg);
             else if(!strcmp(arg.function, "aux_get_workspace_size"))
                 testing_aux_get_workspace_size(arg);
+            else if(!strcmp(arg.function, "aux_string_helper"))
+                testing_aux_string_helper(arg);
+            else if(!strcmp(arg.function, "aux_rocsparselt_ostream"))
+                testing_aux_rocsparselt_ostream(arg);
             else
                 FAIL() << "Internal error: Test called with unknown function: " << arg.function;
         }
@@ -165,7 +169,8 @@ namespace
                    || !strcmp(arg.function, "aux_matmul_plan_init")
                    || !strcmp(arg.function, "aux_matmul_plan_destroy_bad_arg")
                    || !strcmp(arg.function, "aux_get_workspace_size_bad_arg")
-                   || !strcmp(arg.function, "aux_get_workspace_size");
+                   || !strcmp(arg.function, "aux_get_workspace_size")
+                   || !strcmp(arg.function, "aux_string_helper");
         }
 
         // Google Test name suffix based on parameters
